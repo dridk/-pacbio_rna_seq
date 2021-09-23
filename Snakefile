@@ -1,11 +1,16 @@
 from glob import glob
 from itertools import product 
 import re
-
+import hashlib
 
 RAW_DATA ="run1.fastq"
 
 HG19 = config["REFERENCE"]
+
+PLOT_SCRIPT = workflow.basedir +  "/plot_transcript_count.py"
+HASH_BED_SCRIPT = workflow.basedir +  "/hash_bed.py"
+PLOT_HASH_BED = workflow.basedir +  "/plot_hash_bed.py"
+
 
 def fasta_name(filename):
 	with open(filename) as file:
@@ -19,28 +24,21 @@ def all_output():
 
 	for i in product(gene,barcode):
 		gene, barcode = i
-		yield f"{gene}.transcript.{barcode}.dist.png"
+		yield f"{gene}.{barcode}.hash.png"
 
 
+def all_debarcoding():
 
+	barcode = fasta_name(config["BARCODE"])
+	for i in barcode:
+		yield f"debarcoding.{i}--{i}.fastq"
+
+print(all_output())
 
 rule everything:
 	input:
 		list(all_output()),
 
-rule extract_amplicon:
-	input: 
-		RAW_DATA
-	output:
-		"{gene}.merge.fastq"
-	log:
-		"{gene}.amplicon.stats"
-	shell:
-		"""
-		FORWARD=$(seqkit grep primers.fa -p {wildcards.gene}_F|seqkit seq -s)
-		REVERSE=$(seqkit grep primers.fa -p {wildcards.gene}_R|seqkit seq -s)
-		seqkit seq {input}|seqkit amplicon -r -1000:1000 -f -F $FORWARD -R $REVERSE > {output}
-		"""
 
 
 # rule extract_amplicon_rc:
@@ -67,22 +65,47 @@ rule extract_amplicon:
 # 		"cat {input}> {output}"
 
 
-rule extract_barcode_and_trim:
+rule debarcoding:
 	input:
-		"{gene}.merge.fastq"
+		RAW_DATA
 	output:
-		"{gene}.merge.{barcode}.fastq"
+		list(all_debarcoding())
+	shell:
+		"lima -W 300 {input} {config[BARCODE]} debarcoding.fastq --ccs --split-named --single-side --dump-clips"
+
+# rule extract_barcode_and_trim:
+# 	input:
+# 		RAW_DATA
+# 	output:
+# 		"raw.{barcode}.fastq"
+# 	shell:
+# 		"""
+# 		BARCODE=$(seqkit grep {config[BARCODE]} -p {wildcards.barcode} |seqkit seq -s)
+# 		seqkit grep -s -p $BARCODE {input} > {output}
+# 		"""
+
+
+rule extract_amplicon:
+	input: 
+		"debarcoding.{barcode}--{barcode}.fastq"
+	output:
+		"{gene}.{barcode}.fastq"
+	log:
+		"{gene}.{barcode}.amplicon.stats"
 	shell:
 		"""
-		BARCODE=$(seqkit grep barcode.fa -p {wildcards.barcode} |seqkit seq -s)
-		seqkit grep -s -p $BARCODE {input} | seqkit subseq -r 2:-17 > {output}
+		FORWARD=$(seqkit grep {config[PRIMERS]} -p {wildcards.gene}_F|seqkit seq -s)
+		REVERSE=$(seqkit grep {config[PRIMERS]} -p {wildcards.gene}_R|seqkit seq -s)
+		seqkit amplicon {input} -F $FORWARD -R $REVERSE > {output}
 		"""
+
+
 
 rule read_distribution:
 	input:
-		"{gene}.merge.{barcode}.fastq"
+		"{gene}.{barcode}.fastq"
 	output:
-		"{gene}.merge.{barcode}.reads.txt"
+		"{gene}.{barcode}.reads.txt"
 	shell:
 		"""
 		seqkit seq -s {input} | awk '{{print length($0)}}' > {output}
@@ -90,9 +113,9 @@ rule read_distribution:
 
 rule fastqc:
 	input:
-		"{gene}.merge.{barcode}.fastq"
+		"{gene}.{barcode}.fastq"
 	output:
-		"{gene}.merge.{barcode}_fastqc.html"
+		"{gene}.{barcode}_fastqc.html"
 	shell:
 		"fastqc {input}"
 
@@ -106,9 +129,9 @@ rule fastqc:
 
 rule minimap2:
 	input:
-		"{gene}.merge.{barcode}.fastq"
+		"{gene}.{barcode}.fastq"
 	output:
-		"{gene}.merge.{barcode}.sam"
+		"{gene}.{barcode}.sam"
 	threads:
 		5
 	shell:
@@ -125,20 +148,44 @@ rule sam2bam:
 
 rule bam2bed:
 	input:
-		"{gene}.merge.{barcode}.bam"
+		"{gene}.{barcode}.bam"
 	output:
-		"{gene}.merge.{barcode}.bed"
+		"{gene}.{barcode}.bed"
 	shell:
 		"bamToBed -bed12 -i {input} > {output}"
 
-
-rule uniqbed:
+rule bed2hash:
 	input:
-		"{gene}.merge.{barcode}.bed"
+		"{gene}.{barcode}.bed"
 	output:
-		"{gene}.transcript.{barcode}.unique.bed"
+		"{gene}.{barcode}.hash.bed"
 	shell:
-		"cat {input}|awk 'BEGIN{{OFS=\"\t\"}}{{print $1,$2,$3,\"name\",$5,$6,$7,$8,$9,$10,$11,$12}}'|sort |uniq -c|sort -k1 -nr|awk 'BEGIN{{OFS=\"\t\"}}{{print $2,$3,$4,$1, $6,$7,$8,$9,$10,$11,$12,$13}}' > {output}"
+		"python {HASH_BED_SCRIPT} {input} {output}"
+
+rule plot_hashbed:
+	input:
+		"{gene}.{barcode}.hash.bed"
+	output:
+		"{gene}.{barcode}.hash.png"
+	shell:
+		"python {PLOT_HASH_BED} {input} {output}"
+
+
+rule unique_hash:
+	input:
+		"{gene}.{barcode}.hash.bed"
+	output:
+		"{gene}.{barcode}.hash.unique"
+	shell:
+		"cat {input}|cut -f8|sort|uniq -c|sort -k1 -nr > {output}"
+
+# rule uniqbed:
+# 	input:
+# 		"{gene}.{barcode}.bed"
+# 	output:
+# 		"{gene}.transcript.{barcode}.unique.bed"
+# 	shell:
+# 		"cat {input}|awk 'BEGIN{{OFS=\"\t\"}}{{print $1,$2,$3,\"name\",$5,$6,$7,$8,$9,$10,$11,$12}}'|sort |uniq -c|sort -k1 -nr|awk 'BEGIN{{OFS=\"\t\"}}{{print $2,$3,$4,$1, $6,$7,$8,$9,$10,$11,$12,$13}}' > {output}"
 
 
 rule plotuniqbed:
@@ -147,7 +194,7 @@ rule plotuniqbed:
 	output:
 		"{gene}.transcript.{barcode}.dist.png"
 	shell:
-		"python plot_transcript_count.py {input} 10"
+		"python {PLOT_SCRIPT} {input} 10"
 	
 
 rule uniqbed50:
