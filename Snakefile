@@ -10,6 +10,7 @@ HG19 = config["REFERENCE"]
 PLOT_SCRIPT = workflow.basedir +  "/plot_transcript_count.py"
 HASH_BED_SCRIPT = workflow.basedir +  "/hash_bed.py"
 PLOT_HASH_BED = workflow.basedir +  "/plot_hash_bed.py"
+CLUSTERING = workflow.basedir +  "/clustering.py"
 
 
 def fasta_name(filename):
@@ -179,6 +180,18 @@ rule unique_hash:
 	shell:
 		"cat {input}|cut -f8|sort|uniq -c|sort -k1 -nr > {output}"
 
+
+rule clustering:
+	input:
+		lambda wildcards: [i.replace("png", "bed") for i in all_output() if wildcards["gene"] in i]
+	output:
+		"cluster.{gene}.png"
+
+	shell:
+		"python {CLUSTERING} {wildcards.gene} {output}"
+
+
+
 # rule uniqbed:
 # 	input:
 # 		"{gene}.{barcode}.bed"
@@ -188,19 +201,19 @@ rule unique_hash:
 # 		"cat {input}|awk 'BEGIN{{OFS=\"\t\"}}{{print $1,$2,$3,\"name\",$5,$6,$7,$8,$9,$10,$11,$12}}'|sort |uniq -c|sort -k1 -nr|awk 'BEGIN{{OFS=\"\t\"}}{{print $2,$3,$4,$1, $6,$7,$8,$9,$10,$11,$12,$13}}' > {output}"
 
 
-rule plotuniqbed:
-	input:
-		"{gene}.transcript.{barcode}.unique.bed"
-	output:
-		"{gene}.transcript.{barcode}.dist.png"
-	shell:
-		"python {PLOT_SCRIPT} {input} 10"
+# rule plotuniqbed:
+# 	input:
+# 		"{gene}.transcript.{barcode}.unique.bed"
+# 	output:
+# 		"{gene}.transcript.{barcode}.dist.png"
+# 	shell:
+# 		"python {PLOT_SCRIPT} {input} 10"
 	
 
-rule uniqbed50:
-	input:
-		"{gene}.transcript.{barcode}.unique.bed"
-	output:
-		"{gene}.transcript.{barcode}.min50.bed"
-	shell:
-		"cat {input}|awk '$4 > 50 {{ print $0}}' > {output}"
+# rule uniqbed50:
+# 	input:
+# 		"{gene}.transcript.{barcode}.unique.bed"
+# 	output:
+# 		"{gene}.transcript.{barcode}.min50.bed"
+# 	shell:
+# 		"cat {input}|awk '$4 > 50 {{ print $0}}' > {output}"
