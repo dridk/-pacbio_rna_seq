@@ -20,11 +20,18 @@ def fasta_name(filename):
 def all_output():
 
 	barcode = fasta_name(config["BARCODE"])
-	gene = [re.sub(r"_.", "", i) for i in fasta_name(config["PRIMERS"])]
+	genes = set([re.sub(r"_.", "", i) for i in fasta_name(config["PRIMERS"])])
 
-	for i in product(gene,barcode):
+	for i in product(genes,barcode):
 		gene, barcode = i
 		yield f"{gene}.{barcode}.hash.png"
+
+def all_cluster():
+
+	genes = set([re.sub(r"_.", "", i) for i in fasta_name(config["PRIMERS"])])
+	for gene in genes:
+		yield f"cluster.{gene}.png"
+
 
 
 def all_debarcoding():
@@ -38,6 +45,7 @@ print(all_output())
 rule everything:
 	input:
 		list(all_output()),
+		list(all_cluster())
 
 
 
