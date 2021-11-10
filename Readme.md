@@ -1,4 +1,4 @@
-This pipeline was created as part of the [GOLD project](This pipeline was created as part of the GOld project).
+This pipeline was created as part of the [GOLD project](https://aviesan.fr/fr/aviesan/accueil/menu-header/instituts-thematiques-multi-organismes/genetique-genomique-et-bioinformatique/programme-transversal-gold).
 
 
 ## Installation
