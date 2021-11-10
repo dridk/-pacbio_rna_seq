@@ -1,3 +1,6 @@
+This pipeline was created as part of the [GOLD project](This pipeline was created as part of the GOld project).
+
+
 ## Installation
 #### Dependencies 
 * [python >= 3.9 ](https://www.python.org/downloads)
