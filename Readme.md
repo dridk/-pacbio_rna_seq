@@ -49,7 +49,7 @@ snakemake -Fp --cores 10 --configfile config.yaml
 The pipeline will generate one file per barcode and amplicon. 
 For instance HBB.bc1022.bam contains aligned reads from HBB amplicon and bc1022 barcode identifer.
 
-- debarcoding.{barcode}--{barcode}.fastq : Demultiplexed reads 
+- ```debarcoding.{barcode}--{barcode}.fastq``` : Demultiplexed reads 
 - ```{amplicon}.{barcode}.fastq```  : Transcripts reads
 - ```{amplicon}.{barcode}.bam```  : Aligned transcripts Reads 
 - ```{amplicon}.{barcode}.bed```  : Transcripts structures as a bed file 
@@ -57,10 +57,11 @@ For instance HBB.bc1022.bam contains aligned reads from HBB amplicon and bc1022 
 - ```{amplicon}.{barcode}.hash.png```  : Distribution plot of transcripts
 - ```cluster.{amplicon}.png```  : Transcripts abundance heatmap 
 
+For instance, the following heatmap shows transcript abundances for each barcode. 
+Each transcript is identified by a hash number generated from the transcript structure bed file. 
+This make possible to identify transcripts among differents samples.
 
-
-
-
+![](https://github.com/dridk/pacbio_rna_seq/blob/5eadf2b089f1a6839397985baf873084898598b3/cluster.ACKR1.png)
 
 
 
