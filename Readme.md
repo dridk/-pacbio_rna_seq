@@ -44,12 +44,12 @@ The pipeline will generate one file per barcode and amplicon.
 For instance HBB.bc1022.bam contains aligned reads from HBB amplicon and bc1022 barcode identifer.
 
 - debarcoding.{barcode}--{barcode}.fastq : Demultiplexed reads 
-- {amplicon}.{barcode}.fastq  : Transcripts reads
-- {amplicon}.{barcode}.bam  : Aligned transcripts Reads 
-- {amplicon}.{barcode}.bed  : Transcripts structures as a bed file 
-- {amplicon}.{barcode}.hash.bed  : Transcripts structures as a bed file with a unique ID to identify the transcript
-- {amplicon}.{barcode}.hash.png  : Distribution plot of transcripts
-- cluster.{amplicon}.png  : Transcripts abundance heatmap 
+- ```{amplicon}.{barcode}.fastq```  : Transcripts reads
+- ```{amplicon}.{barcode}.bam```  : Aligned transcripts Reads 
+- ```{amplicon}.{barcode}.bed```  : Transcripts structures as a bed file 
+- ```{amplicon}.{barcode}.hash.bed```  : Transcripts structures as a bed file with a unique ID to identify the transcript
+- ```{amplicon}.{barcode}.hash.png```  : Distribution plot of transcripts
+- ```cluster.{amplicon}.png```  : Transcripts abundance heatmap 
 
 
 
