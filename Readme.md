@@ -1,12 +1,15 @@
 ## Installation
 #### Dependencies 
-- [python >= 3.9 ](https://www.python.org/downloads)
-- [seqkit](https://bioinf.shenwei.me/seqkit/)
-- [lima](https://lima.how/)
-- [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
-- [minimap2](https://lh3.github.io/minimap2/)
-- [samtools](http://www.htslib.org/)
-- [bedtools](https://bedtools.readthedocs.io/en/latest/) 
+* [python >= 3.9 ](https://www.python.org/downloads)
+   - seaborn
+   - pandas
+   - matplotlib
+* [seqkit](https://bioinf.shenwei.me/seqkit/)
+* [lima](https://lima.how/)
+* [fastqc](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
+* [minimap2](https://lh3.github.io/minimap2/)
+* [samtools](http://www.htslib.org/)
+* [bedtools](https://bedtools.readthedocs.io/en/latest/) 
 
 #### Install environment from conda 
 
