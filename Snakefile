@@ -3,7 +3,6 @@ from itertools import product
 import re
 import hashlib
 
-RAW_DATA ="run1.fastq"
 
 HG19 = config["REFERENCE"]
 
@@ -68,7 +67,7 @@ rule everything:
 
 rule debarcoding:
 	input:
-		RAW_DATA
+		config["FASTQ"]
 	output:
 		list(all_debarcoding())
 	shell:

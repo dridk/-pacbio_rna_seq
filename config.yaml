@@ -1,4 +1,6 @@
 
-BARCODE: /DATA/share/genmol/sacha/projects/gold/barcode.fa
-PRIMERS: /DATA/share/genmol/sacha/projects/gold/primers.fa
+FASTQ: run1/run1.fastq
+
+BARCODE: barcode.fa
+PRIMERS: primers.fa
 REFERENCE: /mnt/R60/bioinformatique/hg19/hg19.fasta
