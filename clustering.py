@@ -5,6 +5,8 @@ from glob import glob
 import re
 import matplotlib.pyplot as plt
 
+# Compute clustering matrix 
+
 GENE_NAME = sys.argv[1]
 OUTPUT_FILE = sys.argv[2]
 
